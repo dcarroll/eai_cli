@@ -1,0 +1,36 @@
+{
+  "id": 1373774,
+  "name": "weather",
+  "createdAt": "2023-02-25T18:29:40.000+0000",
+  "updatedAt": "2023-02-25T18:29:41.000+0000",
+  "labelSummary": {
+    "labels": [
+      {
+        "id": 0,
+        "datasetId": 1373774,
+        "name": "hourly-forecast",
+        "numExamples": 23
+      },
+      {
+        "id": 1,
+        "datasetId": 1373774,
+        "name": "five-day-forecast",
+        "numExamples": 21
+      },
+      {
+        "id": 2,
+        "datasetId": 1373774,
+        "name": "current-weather",
+        "numExamples": 29
+      }
+    ]
+  },
+  "totalExamples": 73,
+  "totalLabels": 3,
+  "available": true,
+  "statusMsg": "SUCCEEDED",
+  "type": "text-intent",
+  "language": "en_US",
+  "numOfDuplicates": 1,
+  "object": "dataset"
+}
