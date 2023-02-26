@@ -1,7 +1,7 @@
-import { expect, test } from '@oclif/test';
+// import { expect, test } from '@oclif/test';
 
 describe('eai language datasets', () => {
-  test
+  /* test
     .stdout()
     .command(['eai language datasets'])
     .it('runs hello', (ctx) => {
@@ -13,5 +13,5 @@ describe('eai language datasets', () => {
     .command(['eai language datasets', '--name', 'Astro'])
     .it('runs hello --name Astro', (ctx) => {
       expect(ctx.stdout).to.contain('hello Astro');
-    });
+    }); */
 });

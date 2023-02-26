@@ -111,35 +111,4 @@ sf plugins
 
 <!-- commands -->
 
-- [`sf hello world`](#sf-hello-world)
-
-## `sf hello world`
-
-Say hello either to the world or someone you know.
-
-```
-USAGE
-  $ sf hello world [--json] [-n <value>]
-
-FLAGS
-  -n, --name=<value>  [default: World] The name of the person you'd like to say hello to.
-
-GLOBAL FLAGS
-  --json  Format output as json.
-
-DESCRIPTION
-  Say hello either to the world or someone you know.
-
-  Say hello either to the world or someone you know.
-
-EXAMPLES
-  Say hello to the world:
-
-    $ sf hello world
-
-  Say hello to someone you know:
-
-    $ sf hello world --name Astro
-```
-
 <!-- commandsstop -->

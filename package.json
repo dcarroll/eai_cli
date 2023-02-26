@@ -1,6 +1,6 @@
 {
-  "name": "eai_cli",
-  "description": "eai_cli",
+  "name": "test",
+  "description": "test",
   "version": "0.0.1",
   "dependencies": {
     "@oclif/core": "^2.0.7",
