@@ -79,7 +79,7 @@ export default class EaiLanguageDatasets extends SfCommand<EaiLanguageDatasetsRe
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static formatSingleDatastResult(datasetData: any): void {
+  private static formatSingleDatasetResult(datasetData: any): void {
     const msg = `
     Summary for dataset
       id: ${datasetData.id}
@@ -108,7 +108,7 @@ export default class EaiLanguageDatasets extends SfCommand<EaiLanguageDatasetsRe
       if (!flags.datasetid) {
         EaiLanguageDatasets.formatResults(data);
       } else {
-        EaiLanguageDatasets.formatSingleDatastResult(data);
+        EaiLanguageDatasets.formatSingleDatasetResult(data);
       }
       return { message: responseMessage, data };
     });

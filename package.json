@@ -73,17 +73,7 @@
         "description": "Commands to say hello."
       },
       "eai": {
-        "description": "EAI Stuff",
-        "subtopics": {
-          "language": {
-            "description": "description for eai.language",
-            "subtopics": {
-              "models": {
-                "description": "description for eai.language.models"
-              }
-            }
-          }
-        }
+        "description": "EAI Stuff"
       }
     }
   },
