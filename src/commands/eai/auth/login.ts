@@ -1,8 +1,3 @@
-/* eslint-disable sf-plugin/no-hardcoded-messages-flags */
-/* eslint-disable sf-plugin/flag-summary */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
@@ -24,6 +19,7 @@ const messages = Messages.load('test', 'eai.auth.login', [
   'flags.setdefaultusername.summary',
   'flags.alias.summary',
   'info.hello',
+  'flags.istest.summary',
 ]);
 
 export type LoginResult = {
@@ -45,45 +41,58 @@ export default class Login extends SfCommand<LoginResult> {
 
   public static flags = {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    name: Flags.string({ char: 'n', required: true, description: messages.getMessage('flags.name.summary') }),
+    name: Flags.string({
+      char: 'n',
+      required: true,
+      summary: messages.getMessage('flags.name.summary'),
+    }),
     pemlocation: Flags.string({
       char: 'f',
       required: true,
-      description: messages.getMessage('flags.pemlocation.summary'),
+      summary: messages.getMessage('flags.pemlocation.summary'),
     }),
-    expiration: Flags.integer({ char: 'e', default: 1, description: messages.getMessage('flags.expiration.summary') }),
+    expiration: Flags.integer({
+      char: 'e',
+      default: 99999,
+      summary: messages.getMessage('flags.expiration.summary'),
+    }),
     setdefaultusername: Flags.boolean({
       char: 's',
       default: true,
-      description: messages.getMessage('flags.setdefaultusername.summary'),
+      summary: messages.getMessage('flags.setdefaultusername.summary'),
     }),
-    alias: Flags.string({ char: 'a', required: false, description: messages.getMessage('flags.alias.summary') }),
+    alias: Flags.string({
+      char: 'a',
+      required: false,
+      summary: messages.getMessage('flags.alias.summary'),
+    }),
+    istest: Flags.boolean({
+      summary: messages.getMessage('flags.istest.summary'),
+      char: 't',
+      default: false,
+    }),
   };
 
   protected static requiresEaiUsername = true;
   protected static requiresUsername = false;
   protected static supportsDevhubUsername = false;
-  protected sfEinstein = require('sf-einstein');
 
-  // eslint-disable-next-line class-methods-use-this
   public async run(): Promise<LoginResult> {
+    const { flags } = await this.parse(Login);
     const eaitoken = new EAIToken();
+    eaitoken.isTest = flags.istest;
+
     return eaitoken
-      .getAccessTokenViaLogin(String(Login.flags.name), Number(Login.flags.expiration), String(Login.flags.pemlocation))
+      .getAccessTokenViaLogin(String(flags.name), Number(flags.expiration), String(flags.pemlocation))
       .then(() => {
         if (Boolean(Login.flags.setdefaultusername) === true) {
-          void eaitoken.setDefaultUsername(String(Login.flags.name));
+          void EAIToken.setDefaultUsername(String(flags.name));
         }
         if (Login.flags.alias) {
-          void eaitoken.setAlias(String(Login.flags.alias), String(Login.flags.name));
+          void EAIToken.setAlias(String(flags.alias), String(flags.name));
         }
         ux.log(messages.getMessage('commandsuccess'));
-        return { username: String(Login.flags.name), message: messages.getMessage('commandsuccess') };
+        return { username: String(flags.name), message: messages.getMessage('commandsuccess') };
       });
-    /* const econfig = await ConfigFile.create({ isGlobal: true, filename: 'einstein.json' });
-
-    econfig.setContentsFromObject(authtoken);
-    econfig.set('pemlocation', join(process.cwd(), this.flags.pemlocation));
-    econfig.write();*/
   }
 }

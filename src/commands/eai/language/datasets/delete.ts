@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
 import { write } from 'clipboardy';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -19,7 +19,7 @@ const messages = Messages.load('test', 'eai.language.datasets.delete', [
 
 export type EaiLanguageDatasetsDeleteResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
   nextcommand: string;
 };
 
@@ -44,16 +44,14 @@ export default class EaiLanguageDatasetsDelete extends SfCommand<EaiLanguageData
   public async run(): Promise<EaiLanguageDatasetsDeleteResult> {
     const { flags } = await this.parse(EaiLanguageDatasetsDelete);
 
-    const path: string = flags.datasetid
-      ? 'https://api.einstein.ai/v2/language/datasets/' + flags.datasetid
-      : 'https://api.einstein.ai/v2/vision/datasets/';
+    const path: string = flags.datasetid ? 'v2/language/datasets/' + flags.datasetid : 'v2/vision/datasets/';
 
     const transport = new EAITransport();
 
     return transport.makeRequest({ form: null, path, method: 'DELETE' }).then(async (data) => {
       const responseMessage = messages.getMessage('commandsuccess', [flags.datasetid]);
       ux.log(responseMessage);
-      const nextcommand = `sfdx eai language datasets delete status -i ${data['id']}`;
+      const nextcommand = `sfdx eai language datasets delete status -i ${data['id'] as string}`;
       if (flags.clipboard) {
         ux.log(messages.getMessage('statusCommandPromptClipboard', [nextcommand]));
         await write(nextcommand);

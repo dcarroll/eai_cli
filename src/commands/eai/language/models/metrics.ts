@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -15,7 +14,7 @@ const messages = Messages.load('test', 'eai.language.models.metrics', [
 
 export type EaiLanguageModelsMetricsResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageModelsMetrics extends SfCommand<EaiLanguageModelsMetricsResult> {
@@ -31,31 +30,31 @@ export default class EaiLanguageModelsMetrics extends SfCommand<EaiLanguageModel
     }),
   };
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-explicit-any
-  private static formatResults(data: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static formatResults(data: any): void {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     ux.table(data, {
       id: {
         header: 'Model Id',
       },
       macroF1: {
-        get: (row) => row.metricsData['macroF1'],
+        get: (row) => row.metricsData['macroF1'] as string,
         header: 'Name',
       },
       testLoss: {
-        get: (row) => row.metricsData['testLoss'],
+        get: (row) => row.metricsData['testLoss'] as string,
         header: 'Created',
       },
       testAccuracy: {
-        get: (row) => row.metricsData['testAccuracy'],
+        get: (row) => row.metricsData['testAccuracy'] as string,
         header: 'Updated',
       },
       trainingLoss: {
-        get: (row) => row.metricsData['trainingLoss'],
+        get: (row) => row.metricsData['trainingLoss'] as string,
         header: 'Type',
       },
       trainingAccuracy: {
-        get: (row) => row.metricsData['trainingAccuracy'],
+        get: (row) => row.metricsData['trainingAccuracy'] as string,
         header: 'Examples',
       },
     });
@@ -63,7 +62,7 @@ export default class EaiLanguageModelsMetrics extends SfCommand<EaiLanguageModel
 
   public async run(): Promise<EaiLanguageModelsMetricsResult> {
     const { flags } = await this.parse(EaiLanguageModelsMetrics);
-    const path: string = 'https://api.einstein.ai/v2/vision/models/' + flags.modelid;
+    const path: string = 'v2/vision/models/' + flags.modelid;
 
     const transport = new EAITransport();
 

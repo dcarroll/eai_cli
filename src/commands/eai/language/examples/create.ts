@@ -1,13 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { createReadStream } from 'fs';
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import * as FormData from 'form-data';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -23,7 +19,7 @@ const messages = Messages.load('test', 'eai.language.examples.create', [
 
 export type EaiLanguageExamplesCreateResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageExamplesCreate extends SfCommand<EaiLanguageExamplesCreateResult> {
@@ -51,27 +47,28 @@ export default class EaiLanguageExamplesCreate extends SfCommand<EaiLanguageExam
     }),
   };
 
-  private static formatResults(data: JSON) {
+  private static formatResults(data: JsonMap): void {
     ux.styledObject(data, ['id', 'type', 'statusMsg']);
   }
 
   public async run(): Promise<EaiLanguageExamplesCreateResult> {
     const { flags } = await this.parse(EaiLanguageExamplesCreate);
-    const formData = require('form-data');
+    const fData = new FormData();
 
-    const path = `https://api.einstein.ai/v2/language/datasets/${flags.datasetid}/upload`;
+    const path = `v2/language/datasets/${flags.datasetid}/upload`;
 
-    const form = new formData();
     if (flags.path) {
-      form.append('path', flags.path);
+      fData.append('path', flags.path);
     } else {
-      form.append('data', createReadStream(flags.data));
+      fData.append('data', createReadStream(flags.data));
     }
 
     const transport = new EAITransport();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const form = fData.getBuffer().toString();
 
     return transport.makeRequest({ form, path, method: 'PUT' }).then((data) => {
-      const responseMessage = messages.getMessage('commandsuccess', [data['id']]);
+      const responseMessage = messages.getMessage('commandsuccess', [data['id'] as string]);
       ux.log(responseMessage);
       EaiLanguageExamplesCreate.formatResults(data);
       return { message: responseMessage, data };

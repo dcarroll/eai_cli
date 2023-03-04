@@ -43,3 +43,7 @@ Logs in using PEM file and caches tokens
 # info.hello
 
 Hello %s at %s.
+
+# flags.istest.summary
+
+Used for testing login.

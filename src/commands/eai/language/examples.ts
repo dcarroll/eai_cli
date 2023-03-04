@@ -1,6 +1,7 @@
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages, SfError } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -16,7 +17,7 @@ const messages = Messages.load('test', 'eai.language.examples', [
 
 export type EaiLanguageExamplesResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageExamples extends SfCommand<EaiLanguageExamplesResult> {
@@ -95,15 +96,15 @@ export default class EaiLanguageExamples extends SfCommand<EaiLanguageExamplesRe
       throw new SfError('You must provide either the dataset id or the label id');
     }
     const path: string = flags.datasetid
-      ? `https://api.einstein.ai/v2/language/datasets/${flags.datasetid}/examples/`
-      : `https://api.einstein.ai/v2/language/examples?labelId=${flags.labelid}`;
+      ? `v2/language/datasets/${flags.datasetid}/examples/`
+      : `v2/language/examples?labelId=${flags.labelid}`;
 
     const transport = new EAITransport();
 
     return transport.makeRequest({ form: null, path, method: 'GET' }).then((data) => {
       const responseMessage = 'Successfully retrieved language examples';
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
-      ux.log(`Retrieved ${data['data'].length} examples`);
+      ux.log(`Retrieved ${data['data']['length']} examples`);
       EaiLanguageExamples.formatResults(data);
       return { message: responseMessage, data };
     });

@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -15,7 +14,7 @@ const messages = Messages.load('test', 'eai.language.models.delete', [
 
 export type EaiLanguageModelsDeleteResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageModelsDelete extends SfCommand<EaiLanguageModelsDeleteResult> {
@@ -33,7 +32,7 @@ export default class EaiLanguageModelsDelete extends SfCommand<EaiLanguageModels
 
   public async run(): Promise<EaiLanguageModelsDeleteResult> {
     const { flags } = await this.parse(EaiLanguageModelsDelete);
-    const path = `https://api.einstein.ai/v2/language/models/${flags.modelid}`;
+    const path = `v2/language/models/${flags.modelid}`;
 
     const transport = new EAITransport();
 

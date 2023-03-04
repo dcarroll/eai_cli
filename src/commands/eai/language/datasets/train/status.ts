@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -15,7 +14,7 @@ const messages = Messages.load('test', 'eai.language.datasets.train.status', [
 
 export type EaiLanguageDatasetsTrainStatusResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageDatasetsTrainStatus extends SfCommand<EaiLanguageDatasetsTrainStatusResult> {
@@ -31,14 +30,14 @@ export default class EaiLanguageDatasetsTrainStatus extends SfCommand<EaiLanguag
     }),
   };
 
-  private static formatResults(data: any) {
+  private static formatResults(data: JsonMap): void {
     ux.styledObject(data, ['name', 'status', 'modelId', 'modelType', 'updatedAt']);
   }
 
   public async run(): Promise<EaiLanguageDatasetsTrainStatusResult> {
     const { flags } = await this.parse(EaiLanguageDatasetsTrainStatus);
 
-    const path: string = 'https://api.einstein.ai/v2/language/train/' + flags.modelid;
+    const path: string = 'v2/language/train/' + flags.modelid;
 
     const transport = new EAITransport();
 

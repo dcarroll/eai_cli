@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -17,7 +15,7 @@ const messages = Messages.load('test', 'eai.language.datasets.delete.status', [
 
 export type EaiLanguageDatasetsDeleteStatusResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageDatasetsDeleteStatus extends SfCommand<EaiLanguageDatasetsDeleteStatusResult> {
@@ -39,9 +37,7 @@ export default class EaiLanguageDatasetsDeleteStatus extends SfCommand<EaiLangua
 
   public async run(): Promise<EaiLanguageDatasetsDeleteStatusResult> {
     const { flags } = await this.parse(EaiLanguageDatasetsDeleteStatus);
-    const path: string = flags.datasetid
-      ? 'https://api.einstein.ai/v2/language/deletion/' + flags.datasetid
-      : 'https://api.einstein.ai/v2/vision/datasets/';
+    const path: string = flags.datasetid ? 'v2/language/deletion/' + flags.datasetid : 'v2/vision/datasets/';
     const transport = new EAITransport();
 
     return transport.makeRequest({ form: null, path, method: 'GET' }).then((data) => {

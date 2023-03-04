@@ -1,13 +1,10 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
 import { write } from 'clipboardy';
+import { JsonMap } from '@salesforce/ts-types';
+import { Tokens } from '@salesforce/core/lib/messages';
+import * as FormData from 'form-data';
 import EAITransport from '../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -28,7 +25,7 @@ const messages = Messages.load('test', 'eai.language.datasets.retrain', [
 
 export type EaiLanguageDatasetsRetrainResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageDatasetsRetrain extends SfCommand<EaiLanguageDatasetsRetrainResult> {
@@ -66,21 +63,20 @@ export default class EaiLanguageDatasetsRetrain extends SfCommand<EaiLanguageDat
 
   public async run(): Promise<EaiLanguageDatasetsRetrainResult> {
     const { flags } = await this.parse(EaiLanguageDatasetsRetrain);
-    const formData = require('form-data');
+    const fData = new FormData();
 
-    const path = 'https://api.einstein.ai/v2/language/retrain';
+    const path = 'v2/language/retrain';
 
-    const form = new formData();
-    form.append('modelId', flags.modelid);
-    if (flags.epoches) form.append('epochs', flags.epochs);
-    if (flags.learningrate) form.append('learningRate', flags.learningrate);
-    if (flags.trainparams) form.append('trainParams', flags.trainparams);
+    fData.append('modelId', flags.modelid);
+    if (flags.epoches) fData.append('epochs', flags.epochs.toString());
+    if (flags.trainparams) fData.append('trainParams', flags.trainparams);
 
     const transport = new EAITransport();
-
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const form = fData.getBuffer().toString();
     return transport.makeRequest({ form, path, method: 'POST' }).then(async (data) => {
-      const responseMessage = messages.getMessage('commandsuccess', data['modelId']);
-      const nextCommand = `sfdx eai:language:datasets:train:status -i ${data['modelId']}`;
+      const responseMessage = messages.getMessage('commandsuccess', data['modelId'] as Tokens);
+      const nextCommand = `sfdx eai:language:datasets:train:status -i ${data['modelId'] as string}`;
       ux.styledObject(data, ['datasetId', 'modelId', 'name', 'status', 'progress', 'createdAt']);
       if (flags.clipboard) {
         ux.log(messages.getMessage('statusCommandPromptClipboard', [nextCommand]));

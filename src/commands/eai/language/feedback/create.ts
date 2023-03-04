@@ -1,12 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { createReadStream } from 'fs';
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import * as FormData from 'form-data';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -21,7 +18,7 @@ const messages = Messages.load('test', 'eai.language.feedback.create', [
 
 export type EaiLanguageFeedbackCreateResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageFeedbackCreate extends SfCommand<EaiLanguageFeedbackCreateResult> {
@@ -49,16 +46,17 @@ export default class EaiLanguageFeedbackCreate extends SfCommand<EaiLanguageFeed
 
   public async run(): Promise<EaiLanguageFeedbackCreateResult> {
     const { flags } = await this.parse(EaiLanguageFeedbackCreate);
-    const formData = require('form-data');
+    const fData = new FormData();
 
-    const path = 'https://api.einstein.ai/v2/language/feedback';
+    const path = 'v2/language/feedback';
 
-    const form = new formData();
-    form.append('document', flags.document);
-    form.append('expectedLabel', flags.expectedlabel);
-    form.append('modelId', createReadStream(flags.modelid));
+    fData.append('document', flags.document);
+    fData.append('expectedLabel', flags.expectedlabel);
+    fData.append('modelId', createReadStream(flags.modelid));
 
     const transport = new EAITransport();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const form = fData.getBuffer().toString();
 
     return transport.makeRequest({ form, path, method: 'POST' }).then((data) => {
       const responseMessage = 'Successfully created language feedback';

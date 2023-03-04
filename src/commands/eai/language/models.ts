@@ -1,6 +1,7 @@
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import { JsonMap } from '@salesforce/ts-types';
 import EAITransport from '../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -13,7 +14,7 @@ const messages = Messages.load('test', 'eai.language.models', [
 
 export type EaiLanguageModelsResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageModels extends SfCommand<EaiLanguageModelsResult> {
@@ -32,7 +33,7 @@ export default class EaiLanguageModels extends SfCommand<EaiLanguageModelsResult
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static formatResults(models: any): void {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    ux.table(models.data, {
+    ux.table(models['data'], {
       modelId: {
         header: 'Model Id',
       },
@@ -66,7 +67,7 @@ export default class EaiLanguageModels extends SfCommand<EaiLanguageModelsResult
   public async run(): Promise<EaiLanguageModelsResult> {
     const { flags } = await this.parse(EaiLanguageModels);
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
-    const path = `https://api.einstein.ai/v2/language/datasets/${flags.datasetid}/models`;
+    const path = `v2/language/datasets/${flags.datasetid}/models`;
 
     const transport = new EAITransport();
 

@@ -107,6 +107,11 @@ sf plugins link .
 sf plugins
 ```
 
+# NOTES:
+
+Public HAPI endpoint: https://api-service.sfdc-qjv2vl.svc.sfdcfc.net
+For auth: https://api-service.sfdc-qjv2vl.svc.sfdcfc.net/v2/oauth2/token
+
 ## Commands
 
 <!-- commands -->

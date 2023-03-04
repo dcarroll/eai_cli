@@ -1,10 +1,8 @@
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core/lib/cli-ux';
+import clipboard = require('clipboardy');
 import EAIToken from '../../../utils/token';
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires
-const clipboard = require('clipboardy');
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -42,21 +40,20 @@ export default class GetToken extends SfCommand<GetTokenResult> {
   public static requiresProject = false;
   protected static requiresUsername = false;
   protected static supportsDevhubUsername = false;
-  // protected sfEinstein = require('sf-einstein');
 
-  // eslint-disable-next-line class-methods-use-this
   public async run(): Promise<GetTokenResult> {
+    const { flags } = await this.parse(GetToken);
+
     const eaitoken = new EAIToken();
     const configToken = await eaitoken.getAuthToken();
     return eaitoken.getAccessTokenViaRefreshToken().then(async () => {
-      if (GetToken.flags.toclipboard) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-        await clipboard.write(configToken.access_token);
+      if (flags.toclipboard) {
+        await clipboard.write(configToken.accessToken);
         ux.log('Token has been placed in your clipboard.');
-        return { username: configToken.user_name, token: configToken.access_token };
+        return { username: configToken.userName, token: configToken.accessToken };
       } else {
-        ux.log('Retrieved token for ' + configToken.user_name + '\n' + configToken.access_token);
-        return { username: configToken.user_name, token: configToken.access_token };
+        ux.log('Retrieved token for ' + configToken.userName + '\n' + configToken.accessToken);
+        return { username: configToken.userName, token: configToken.accessToken };
       }
     });
   }

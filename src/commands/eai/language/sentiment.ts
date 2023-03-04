@@ -1,6 +1,8 @@
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import { JsonMap } from '@salesforce/ts-types';
+import * as FormData from 'form-data';
 import EAITransport from '../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -16,7 +18,7 @@ const messages = Messages.load('test', 'eai.language.sentiment', [
 
 export type EaiLanguageSentimentResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageSentiment extends SfCommand<EaiLanguageSentimentResult> {
@@ -63,26 +65,19 @@ export default class EaiLanguageSentiment extends SfCommand<EaiLanguageSentiment
 
   public async run(): Promise<EaiLanguageSentimentResult> {
     const { flags } = await this.parse(EaiLanguageSentiment);
+    const fData = new FormData();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires
-    const formData = require('form-data');
+    const path = 'v2/language/sentiment/';
 
-    const path = 'https://api.einstein.ai/v2/language/sentiment/';
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const form = new formData();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    form.append('modelId', flags.modelid);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    form.append('numResults', flags.numresults);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    if (flags.sampleid) form.append(flags.sampleid);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    form.append('document', flags.document);
+    fData.append('modelId', flags.modelid);
+    fData.append('numResults', flags.numresults);
+    if (flags.sampleid) fData.append('sampleid', flags.sampleid);
+    fData.append('document', flags.document);
 
     const transport = new EAITransport();
-
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const form = fData.getBuffer().toString();
+
     return transport.makeRequest({ form, path, method: 'POST' }).then((data) => {
       const responseMessage = 'Successfully retrieved prediction\n';
       ux.log(responseMessage);

@@ -2,6 +2,9 @@ import { createReadStream } from 'fs';
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { ux } from '@oclif/core';
+import * as formData from 'form-data';
+import { JsonMap } from '@salesforce/ts-types';
+import { Tokens } from '@salesforce/core/lib/messages';
 import EAITransport from '../../../../utils/transport';
 
 Messages.importMessagesDirectory(__dirname);
@@ -19,7 +22,7 @@ const messages = Messages.load('test', 'eai.language.datasets.create', [
 
 export type EaiLanguageDatasetsCreateResult = {
   message: string;
-  data: JSON;
+  data: JsonMap;
 };
 
 export default class EaiLanguageDatasetsCreate extends SfCommand<EaiLanguageDatasetsCreateResult> {
@@ -59,31 +62,24 @@ export default class EaiLanguageDatasetsCreate extends SfCommand<EaiLanguageData
 
   public async run(): Promise<EaiLanguageDatasetsCreateResult> {
     const { flags } = await this.parse(EaiLanguageDatasetsCreate);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires
-    const formData = require('form-data');
 
-    const path = 'https://api.einstein.ai/v2/language/datasets/upload/sync';
+    const path = 'v2/language/datasets/upload/sync';
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const form = new formData();
+    const fData = new formData();
     if (flags.path) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      form.append('path', flags.path);
+      fData.append('path', flags.path);
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      form.append('data', createReadStream(flags.data));
+      fData.append('data', createReadStream(flags.data));
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    form.append('type', flags.type);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    if (flags.name) form.append('name', flags.name);
+    fData.append('type', flags.type);
+    if (flags.name) fData.append('name', flags.name);
 
     const transport = new EAITransport();
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const form = fData.getBuffer().toString();
     return transport.makeRequest({ form, path, method: 'POST' }).then((data) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      const responseMessage = messages.getMessage('commandsuccess', [data['id']]);
+      const responseMessage = messages.getMessage('commandsuccess', data['id'] as Tokens);
       ux.log(responseMessage);
       ux.styledObject(data, ['id', 'name', 'totalExamples', 'totalLabels', 'type']);
       return { message: responseMessage, data };
